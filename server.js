@@ -250,7 +250,7 @@ app.get('/:url?', async (req, res) => {
         </html>
     `);
 });
-
-app.listen(process.env.PORT || 3000, "0.0.0.0" , () => {
+host = "0.0.0.0";
+app.listen(process.env.PORT || 3000, host, () => {
   console.log('Listening on port http://127.0.0.1:' + process.env.PORT);
 });
