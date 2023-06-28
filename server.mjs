@@ -1,20 +1,20 @@
 const app = require('express')();
-const axios = require('axios');
+import { post } from 'axios';
 
-const crypto = require('crypto');
-const https = require('https');
+import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+import { get } from 'https';
 require('dotenv').config();
 
 
 function randomStr(length) {
-  const bytes = crypto.randomBytes(Math.ceil(length / 2));
+  const bytes = randomBytes(Math.ceil(length / 2));
   return bytes.slice(0, Math.ceil(length / 2)).toString('hex').slice(0, length);
 }
 
 function encryptText(text) {
-  const key = crypto.randomBytes(32);
-  const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+  const key = randomBytes(32);
+  const iv = randomBytes(16);
+  const cipher = createCipheriv('aes-256-cbc', key, iv);
   let encryptedText = cipher.update(text, 'utf8', 'base64');
   encryptedText += cipher.final('base64');
   const keyHex = key.toString('hex');
@@ -29,7 +29,7 @@ function decryptText(encryptedText) {
   encryptedText = encryptedText.substring(103 + 64, encryptedText.length - 32 - 50);
   const key = Buffer.from(keyHex, 'hex');
   const iv = Buffer.from(ivHex, 'hex');
-  const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+  const decipher = createDecipheriv('aes-256-cbc', key, iv);
   let decrypted = decipher.update(encryptedText, 'base64', 'utf8');
   decrypted += decipher.final('utf8');
   return decrypted;
@@ -68,7 +68,7 @@ requestFromIframeTag = () => {
 }
 
 streamReader = async (fileUrl, mime = 'text/event-stream') => {
-  https.get(fileUrl, { headers: req.headers }, (response) => {
+  get(fileUrl, { headers: req.headers }, (response) => {
     response.headers['content-type'] = mime;
     res.writeHead(206, response.headers);
     response.pipe(res);
@@ -112,8 +112,7 @@ function getVideoInfo(videoId) {
     contentCheckOk: false,
   };
 
-  return axios
-    .post('https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8', data, {
+  return post('https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8', data, {
       headers: {
         'Content-Type': 'application/json',
       },
